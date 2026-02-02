@@ -2,6 +2,7 @@ pub mod tasks {
     use crate::repositories::tasks as repo;
     use crate::views::tasks as view;
     use crate::models::Task;
+    use chrono::Utc;
 
     pub fn list_tasks() {
         let tasks = repo::read_all();
@@ -9,7 +10,7 @@ pub mod tasks {
     }
 
     pub fn add_task() {
-        let description = view::prompt_description();
+        let (description, priority) = view::prompt_add();
         let mut tasks = repo::read_all();
         
         let mut max_id = 0;
@@ -19,7 +20,7 @@ pub mod tasks {
             }
         }
         let new_id = max_id + 1;
-        let new_task = Task { id: new_id, description, completed: false };
+        let new_task = Task { id: new_id, description, completed: false , priority , created_at: Utc::now(), tags: vec![] };
         
         tasks.push(new_task);
         repo::save_all(tasks);
@@ -66,6 +67,36 @@ pub mod tasks {
                 println!("\nTache mise à jour !");
                 repo::save_all(tasks);
             }
+        } else if task_id == 3 {
+            let (priority_task_id, new_priority) = view::prompt_update_task_priority();
+            let mut found = false;
+            for task in &mut tasks {
+                if task.id == priority_task_id {
+                    task.priority = new_priority;
+                    found = true;
+                    break; 
+                }
+            }
+            if found {
+                println!("\nTache mise à jour !");
+                repo::save_all(tasks);
+            }
+        } else if task_id == 4 {
+            let (tags_task_id, new_tags) = view::prompt_update_task_tags();
+            let mut found = false;
+            for task in &mut tasks {
+                if task.id == tags_task_id {
+                    task.tags = new_tags;
+                    found = true;
+                    break; 
+                }
+            }
+            if found {
+                println!("\nTache mise à jour !");
+                repo::save_all(tasks);
+            }
+        } else {
+            println!("\nLeaving update menu.");
         }
     }
 
