@@ -9,15 +9,17 @@ pub struct CacheEntry<V> {
 
 }
 
-pub struct Cache<K, V> {
+pub struct Cache<K, V> where 
+    K: std::hash::Hash + Eq + Clone + Send + 'static,
+    V: Clone + Send + 'static,{
     pub entries : Arc<Mutex<HashMap<K, CacheEntry<V>>>>,
     pub default_ttl: Duration,
 
 }
 
 impl<K, V> Cache<K, V> where 
-    K: std::hash::Hash + Eq + Clone,
-    V: Clone
+    K: std::hash::Hash + Eq + Clone + Send + 'static,
+    V: Clone + Send + 'static,
  {
     pub fn new(default_ttl: Duration) -> Self {
         Cache {
@@ -69,5 +71,3 @@ impl<K, V> Cache<K, V> where
         
     }
 }
-
-
